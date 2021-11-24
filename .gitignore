@@ -20,5 +20,6 @@ PyFlex/bindings/examples/*.gif
 build/
 
 *.npz
-*.tar
 *.pyc
+*.DS_Store
+

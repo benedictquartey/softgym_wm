@@ -116,7 +116,7 @@ for p_index in range(num_workers):
 ################################################################################
 #                           Evaluation                                         #
 ################################################################################
-def evaluate(solutions, results, rollouts=10):
+def evaluate(solutions, results, rollouts=30):
     """ Give current controller evaluation.
 
     Evaluation is the cumulated reward averaged over rollout runs.
@@ -128,7 +128,7 @@ def evaluate(solutions, results, rollouts=10):
     :returns: averaged cumulated reward
     """
     print("Current Pop returns: ",results)
-    index_min = np.argmax(results) #change to argmax, max reward
+    index_min = np.argmin(results) #change to argmax?, max reward?
     best_guess = solutions[index_min]
     restimates = []
 
@@ -164,54 +164,63 @@ es = cma.CMAEvolutionStrategy(flatten_parameters(parameters), 0.1,
 
 epoch = 0
 log_step = 3
-while not es.stop():
-    if cur_best is not None and cur_best > args.target_return:
-        print("Already better than target, breaking...")
-        break
-
-    r_list = [0] * pop_size  # result list
-    solutions = es.ask()
-
-    # push parameters to queue
-    for s_id, s in enumerate(solutions):
-        for _ in range(n_samples):
-            p_queue.put((s_id, s))
-
-    # retrieve results
-    if args.display:
-        pbar = tqdm(total=pop_size * n_samples)
-    for _ in range(pop_size * n_samples):
-        while r_queue.empty():
-            sleep(.1)
-        r_s_id, r = r_queue.get()
-        r_list[r_s_id] += r / n_samples
-        if args.display:
-            pbar.update(1)
-    if args.display:
-        pbar.close()
-
-    es.tell(solutions, r_list)
-    es.disp()
-
-    # evaluation and saving
-    if epoch % log_step == log_step - 1:
-        best_params, best, std_best = evaluate(solutions, r_list)
-        print("Current evaluation: {}".format(best))
-    # if not cur_best or cur_best < best: #changing save condition from > to <
-        cur_best = best
-        print("Saving new ctrl with value {}+-{}...".format(cur_best, std_best))
-        load_parameters(best_params, controller)
-        torch.save(
-            {'epoch': epoch,
-             'reward': cur_best,
-             'state_dict': controller.state_dict()},
-            join(ctrl_dir, f'rw_{cur_best}.tar'))
-        if  best > args.target_return:
-            print("Terminating controller training with value {}...".format(best))
+try:
+    while not es.stop():
+        if cur_best is not None and cur_best > args.target_return:
+            print("Already better than target, breaking...")
             break
 
+        r_list = [0] * pop_size  # result list
+        solutions = es.ask()
 
-    epoch += 1
+        # push parameters to queue
+        for s_id, s in enumerate(solutions):
+            for _ in range(n_samples):
+                p_queue.put((s_id, s))
 
-es.result_pretty()
-e_queue.put('EOP')
+        # retrieve results
+        if args.display:
+            pbar = tqdm(total=pop_size * n_samples)
+        for _ in range(pop_size * n_samples):
+            while r_queue.empty():
+                sleep(.1)
+            r_s_id, r = r_queue.get()
+            r_list[r_s_id] += r / n_samples
+            if args.display:
+                pbar.update(1)
+        if args.display:
+            pbar.close()
+
+        es.tell(solutions, r_list)
+        es.logger.add()
+        es.disp()
+
+        # evaluation and saving
+        if epoch % log_step == log_step - 1:
+            best_params, best, std_best = evaluate(solutions, r_list)
+            print("Current evaluation: {}".format(best))
+        # if not cur_best or cur_best < best: #changing save condition from > to <
+            cur_best = best
+            print("Saving new ctrl with value {}+-{}...".format(cur_best, std_best))
+            load_parameters(best_params, controller)
+            torch.save(
+                {'epoch': epoch,
+                 'reward': cur_best,
+                 'state_dict': controller.state_dict()},
+                join(ctrl_dir, f'rw_{cur_best}.tar'))
+            if  best > args.target_return:
+                print("Terminating controller training with value {}...".format(best))
+                break
+
+
+        epoch += 1
+
+    es.result_pretty()
+    e_queue.put('EOP')
+    cma.plot()
+    cma.s.figsave("InterruptedPlot.png")
+except KeyboardInterrupt:
+    print("Interrupted")
+    es.result_pretty()
+    cma.plot()
+    cma.s.figsave("InterruptedPlot.png")

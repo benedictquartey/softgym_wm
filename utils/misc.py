@@ -150,7 +150,7 @@ class RolloutGenerator(object):
         env_kwargs['save_cached_states'] = False
         env_kwargs['num_variations'] = 1
         env_kwargs['render'] = True
-        env_kwargs['headless'] = False
+        env_kwargs['headless'] = False  #set to true to not show visualization
         env_kwargs['observation_mode'] = 'cam_rgb'
 
         if not env_kwargs['use_cached_states']:

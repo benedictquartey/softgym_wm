@@ -217,7 +217,9 @@ class RolloutGenerator(object):
             while True:
                 obs = transform(obs).unsqueeze(0).to(self.device)
                 action, hidden = self.get_action_and_transition(obs, hidden)
-                obs, reward, done, _ = self.env.step(action)
+                # obs, reward, done, _ = self.env.step(action)
+                obs, reward, done, info = self.env.step(action, record_continuous_video=True, img_size=64)
+                frames.extend(info['flex_env_recorded_frames'])
 
                 if render:
                     self.env.render()

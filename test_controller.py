@@ -1,9 +1,16 @@
 """ Test controller """
 import argparse
 from os.path import join, exists
+import random
+import numpy as np
 
 from utils.evaluation import RolloutGenerator
 import torch
+#seed 1,6 ,  \\ 123,7 works well for -90 ctrl 124,125,126
+#seeding stuff
+torch.manual_seed(126)
+random.seed(126)
+np.random.seed(126)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--logdir', type=str, help='Where models are stored.')

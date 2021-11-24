@@ -1,3 +1,4 @@
+***Generating Data***
 Generate data for 3 rollouts in RopeFlatten environment, observation type cam_rgb. Options ['point_cloud, cam_rgb, key_point'] 
 	python softgym_rollout.py --env_name RopeFlatten --rollout_num 3 --observation_mode cam_rgb 
 
@@ -12,8 +13,9 @@ Add headless argument to run faster without visualizations
 Python file has more arguments for whatever you want to do.
 
 
-***After generating data 
+***After generating data***
 Note don't save videos when generating data for training.
+All commands run from root of softgym. ie softagent/softgym 
 1. TRAIN VAE
 	python trainvae.py 
 		--datadir "path to data" 
@@ -37,4 +39,5 @@ Good parameters --n-samples 4  --pop-size --max-workers 3
 
 
 4. TEST Controller
-	python test_controller.py --logdir exp_dir --episodes 2
+	In the Ctrl folder of exp_opt rename the best controller model as best.tar then run:
+	python test_controller.py --logdir "folder with all trained models eg: exp_opt" --episodes "Number of episodes/rollouts to run"

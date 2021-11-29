@@ -199,6 +199,7 @@ try:
         if epoch % log_step == log_step - 1:
             best_params, best, std_best = evaluate(solutions, r_list)
             print("Current evaluation: {}".format(best))
+            ###save best for each generation to create graph of Avg cummulative reward vs generations
         # if not cur_best or cur_best < best: #changing save condition from > to <
             cur_best = best
             print("Saving new ctrl with value {}+-{}...".format(cur_best, std_best))

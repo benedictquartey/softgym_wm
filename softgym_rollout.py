@@ -6,7 +6,6 @@ from softgym.registered_env import env_arg_dict, SOFTGYM_ENVS
 from softgym.utils.normalized_env import normalize
 from softgym.utils.visualization import save_numpy_as_gif
 
-
 def main():
     parser = argparse.ArgumentParser(description='Process some integers.')
     # ['PassWater', 'PourWater', 'PourWaterAmount', 'RopeFlatten', 'ClothFold', 'ClothFlatten', 'ClothDrop', 'ClothFoldCrumpled', 'ClothFoldDrop', 'RopeConfiguration']
@@ -24,6 +23,12 @@ def main():
     args = parser.parse_args()
     obs_imgsize = 64
     obs_width, obs_height = obs_imgsize, obs_imgsize
+
+    #seed || Confirm if seeding generates consistent yet random moves for each rollout
+    #torch.manual_seed(0)
+    #random.seed(0)
+    #np.random.seed(0)
+    #seed
 
     # directory stuff
     rollout_dir = args.rollout_dir

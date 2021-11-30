@@ -1,0 +1,40 @@
+Generate data for 3 rollouts in RopeFlatten environment, observation type cam_rgb. Options ['point_cloud, cam_rgb, key_point'] 
+	python softgym_rollout.py --env_name RopeFlatten --rollout_num 3 --observation_mode cam_rgb 
+
+
+Add save_video argument to save videos as well so you can play back rollout/policy interaction during evaluation.
+	python softgym_rollout.py --env_name RopeFlatten --rollout_num 3 --observation_mode cam_rgb --save_video
+
+
+Add headless argument to run faster without visualizations
+	python softgym_rollout.py --env_name RopeFlatten --rollout_num 3 --observation_mode cam_rgb --headless
+
+Python file has more arguments for whatever you want to do.
+
+
+***After generating data 
+Note don't save videos when generating data for training.
+1. TRAIN VAE
+	python trainvae.py 
+		--datadir "path to data" 
+		--logdir "path to place results"
+ 			
+2. TRAIN MDRNN
+	python trainmdrnn.py 
+		--datadir "path to data" 
+		--logdir "path to place results"
+ 		
+3. TRAIN Controller
+	python traincontroller.py 
+		--logdir "path where VAE & MDRNN models are stored" 
+		--n-samples " number of samples to obtain return estimate"
+		--pop-size "population size for CMA"
+		--target-return "used for stopping training"
+		--display "shows progress bars when training"
+		--max-workers "number of threads for training"
+
+Good parameters --n-samples 4  --pop-size 4 --max-workers 3
+
+
+4. TEST Controller
+	python test_controller.py --logdir exp_dir --episodes 2
